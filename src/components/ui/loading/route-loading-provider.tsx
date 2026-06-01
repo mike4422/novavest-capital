@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { AnimatePresence, motion } from "framer-motion";
 import { Loader2 } from "lucide-react";
 
@@ -34,7 +34,6 @@ function shouldShowLoaderForAnchor(anchor: HTMLAnchorElement) {
 
 export function RouteLoadingProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const searchParams = useSearchParams();
   const [isRouteLoading, setIsRouteLoading] = useState(false);
   const [label, setLabel] = useState("Loading secure page...");
 
@@ -49,7 +48,7 @@ export function RouteLoadingProvider({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     stopRouteLoading();
-  }, [pathname, searchParams, stopRouteLoading]);
+  }, [pathname, stopRouteLoading]);
 
   useEffect(() => {
     const onClick = (event: MouseEvent) => {

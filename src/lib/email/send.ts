@@ -1,81 +1,34 @@
 import nodemailer from "nodemailer";
 import { Resend } from "resend";
 
-export async function sendEmail({
-  to,
-  subject,
-  html,
-}: {
-  to: string;
-  subject: string;
-  html: string;
-}) {
-  const from = process.env.EMAIL_FROM;
-  const provider = process.env.EMAIL_PROVIDER;
+export async function sendEmail({ to, subject, html }: { to: string; subject: string; html: string }) {
+  const from = process.env.EMAIL_FROM || "NovaVest Capital <noreply@novavestcapital.com>";
+  const provider = process.env.EMAIL_PROVIDER || "resend";
 
-  if (!from) {
-    throw new Error("EMAIL_FROM is missing in .env.local");
-  }
-
-  if (!provider) {
-    throw new Error("EMAIL_PROVIDER is missing. Use either 'smtp' or 'resend'.");
-  }
-
-  if (provider === "resend") {
-    if (!process.env.RESEND_API_KEY) {
-      throw new Error("RESEND_API_KEY is missing in .env.local");
-    }
-
+  if (provider === "resend" && process.env.RESEND_API_KEY) {
     const resend = new Resend(process.env.RESEND_API_KEY);
-
-    const result = await resend.emails.send({
-      from,
-      to,
-      subject,
-      html,
-    });
-
-    console.log("Resend email result:", result);
-    return result;
+    return resend.emails.send({ from, to, subject, html });
   }
 
-  if (provider === "smtp") {
-    if (!process.env.SMTP_HOST) throw new Error("SMTP_HOST is missing.");
-    if (!process.env.SMTP_USER) throw new Error("SMTP_USER is missing.");
-    if (!process.env.SMTP_PASS) throw new Error("SMTP_PASS is missing.");
-
+  if (provider === "smtp" && process.env.SMTP_HOST) {
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT || 465),
       secure: process.env.SMTP_SECURE !== "false",
       auth: {
         user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASS,
-      },
+        pass: process.env.SMTP_PASS
+      }
     });
-
-    await transporter.verify();
-
-    const result = await transporter.sendMail({
-      from,
-      to,
-      subject,
-      html,
-    });
-
-    console.log("SMTP email sent:", result.messageId);
-    return result;
+    return transporter.sendMail({ from, to, subject, html });
   }
 
-  throw new Error("Invalid EMAIL_PROVIDER. Use 'smtp' or 'resend'.");
+  console.warn("Email skipped: no provider configured", { to, subject });
+  return { skipped: true };
 }
 
 export async function sendAdminEmail(subject: string, html: string) {
   const to = process.env.ADMIN_EMAIL;
-
-  if (!to) {
-    throw new Error("ADMIN_EMAIL is missing in .env.local");
-  }
-
+  if (!to) return { skipped: true };
   return sendEmail({ to, subject, html });
 }
