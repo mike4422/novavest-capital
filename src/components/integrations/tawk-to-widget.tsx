@@ -3,7 +3,7 @@
 
 import Script from "next/script";
 
-export function TawkWidget() {
+export function TawkToWidget() {
   return (
     <Script id="tawk-to" strategy="afterInteractive">
       {`
