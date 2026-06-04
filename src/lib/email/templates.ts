@@ -27,8 +27,6 @@ export const emailButton = (href: string, label: string) => `
 
 export const emails = {
   welcome: (name: string) => shell("Welcome to NovaVest Capital", `<p>Hello ${name},</p><p>Your NovaVest Capital account has been created successfully. You can now login, fund your wallet, select an investment plan, and track your portfolio from the dashboard.</p>`),
-  confirmEmail: (name: string, confirmationUrl: string) => shell("Confirm your NovaVest Capital account", `<p>Hello ${name},</p><p>Welcome to NovaVest Capital. Please confirm your email address to activate your secure investment dashboard.</p>${emailButton(confirmationUrl, "Confirm Email Address")}<p>This verification link expires in 24 hours. If you did not create this account, you can safely ignore this message.</p>`),
-  emailConfirmed: (name: string) => shell("Email confirmed successfully", `<p>Hello ${name},</p><p>Your email address has been confirmed successfully. You can now login and access your NovaVest Capital dashboard.</p>`),
   adminNewRegistration: (name: string, email: string) => shell("New investor registration", `<p>A new user registered on NovaVest Capital.</p><p><b>Name:</b> ${name}<br/><b>Email:</b> ${email}</p>`),
   depositSubmitted: (name: string, amount: number, network: string) => shell("Deposit request received", `<p>Hello ${name},</p><p>Your deposit request of <b>${formatCurrency(amount)}</b> via <b>${network}</b> has been received and is pending admin review.</p>`),
   adminDeposit: (email: string, amount: number, network: string) => shell("New deposit request", `<p>A new deposit request needs approval.</p><p><b>User:</b> ${email}<br/><b>Amount:</b> ${formatCurrency(amount)}<br/><b>Network:</b> ${network}</p>`),

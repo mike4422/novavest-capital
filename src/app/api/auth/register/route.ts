@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { createEmailVerificationToken } from "@/lib/auth/email-verification";
 import { generateReferralCode } from "@/lib/utils";
 import { registerSchema } from "@/lib/validators";
 import { sendAdminEmail, sendEmail } from "@/lib/email/send";
@@ -23,10 +22,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "An account with this email already exists." }, { status: 409 });
     }
 
+    // Creating user and bypassing email confirmation
     const { data: created, error: authError } = await admin.auth.admin.createUser({
       email: normalizedEmail,
       password: body.password,
-      email_confirm: false,
+      email_confirm: true, 
       user_metadata: { full_name: body.fullName }
     });
 
@@ -47,7 +47,7 @@ export async function POST(request: Request) {
       email: normalizedEmail,
       referral_code: referralCode,
       referred_by: referredBy,
-      email_verified_at: null
+      email_verified_at: new Date().toISOString() // Instantly marking email as verified
     });
 
     if (profileError) {
@@ -59,17 +59,13 @@ export async function POST(request: Request) {
       await admin.from("referrals").insert({ referrer_id: referredBy, referred_id: created.user.id, status: "REGISTERED" });
     }
 
-    const verification = await createEmailVerificationToken({
-      admin,
-      userId: created.user.id,
-      email: normalizedEmail
-    });
-
     await admin.from("activity_logs").insert({ actor_id: created.user.id, action: "USER_REGISTERED", metadata: { email: normalizedEmail } });
-    await sendEmail({ to: normalizedEmail, subject: "Confirm your NovaVest Capital account", html: emails.confirmEmail(body.fullName, verification.confirmationUrl) });
+    
+    // Send standard welcome email without links
+    await sendEmail({ to: normalizedEmail, subject: "Welcome to NovaVest Capital", html: emails.welcome(body.fullName) });
     await sendAdminEmail("New NovaVest Capital registration", emails.adminNewRegistration(body.fullName, normalizedEmail));
 
-    return NextResponse.json({ ok: true, userId: created.user.id, message: "Account created. Please check your email to confirm your account." });
+    return NextResponse.json({ ok: true, userId: created.user.id, message: "Account created successfully." });
   } catch (error: any) {
     return NextResponse.json({ error: error.message || "Invalid request." }, { status: 400 });
   }

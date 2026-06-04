@@ -45,10 +45,10 @@ export function RegisterForm() {
         return;
       }
 
-      toast.success("Account created. Please check your email to confirm your account.");
-      startRouteLoading("Preparing confirmation page...");
+      toast.success("Account created successfully! Redirecting to login...");
+      startRouteLoading("Redirecting...");
       navigated = true;
-      router.push(`/login?confirm=1&email=${encodeURIComponent(email)}`);
+      router.push(`/login?email=${encodeURIComponent(email)}`);
     } catch {
       toast.error("Registration failed. Please check your connection and try again.");
     } finally {
