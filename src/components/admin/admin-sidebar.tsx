@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Activity, BarChart3, BellRing, CircleDollarSign, Database, Gauge, Landmark, ShieldCheck, Users, WalletCards } from "lucide-react";
+import { Activity, BarChart3, BellRing, CircleDollarSign, Database, Gauge, Landmark, MessageCircle, ShieldCheck, Users, WalletCards } from "lucide-react";
 import { Logo } from "@/components/layout/logo";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +14,7 @@ const links = [
   { href: "/admin/wallets", label: "Wallet Addresses", icon: Landmark },
   { href: "/admin/investments", label: "Investments", icon: BarChart3 },
   { href: "/admin/announcements", label: "Announcements", icon: BellRing },
+  { href: "/admin/support", label: "Support Inbox", icon: MessageCircle },
   { href: "/admin/roles", label: "Admin Roles", icon: ShieldCheck },
   { href: "/admin/logs", label: "System Logs", icon: Database }
 ];

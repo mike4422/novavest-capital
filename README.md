@@ -10,12 +10,13 @@ A premium crypto investment SaaS starter built with Next.js App Router, TypeScri
 - Supabase email/password authentication with custom NovaVest email confirmation links.
 - Role-based admin access by email through `admin_roles`.
 - User dashboard with balances, active investments, profit tracking, deposits, withdrawals, referrals, notifications, KYC area, charts, and activity timeline.
-- Admin dashboard with user management, deposit/withdrawal review, wallet address management, admin role assignment, analytics, announcements, logs, and exports.
+- Admin dashboard with user management, deposit/withdrawal review, wallet address management, support inbox replies, admin role assignment, analytics, announcements, logs, and exports.
 - Crypto deposit flow: network selection, wallet display, proof upload, pending status, admin email notification, user approval/rejection email.
 - Withdrawal flow with pending review, admin approval/rejection, email updates, and balance handling.
 - Investment creation, reinvest-ready structure, countdown/progress tracking, completion cron route, and transaction logging.
 - Supabase schema with RLS policies, helper functions, seed data, storage buckets, and realtime-ready tables.
-- Professional HTML email templates for account confirmation, welcome, registration alert, deposit/withdrawal status, investments, password reset, and security alerts.
+- Professional HTML email templates for account confirmation, welcome, registration alert, deposit/withdrawal status, investments, support replies, password reset, and security alerts.
+- Optional Tawk.to live chat widget plus a custom Nova AI support widget that stores conversations in Supabase for admin replies.
 
 ## 1. Install
 
@@ -83,6 +84,25 @@ SMTP_PORT=465
 SMTP_SECURE=true
 SMTP_USER=noreply@yourdomain.com
 SMTP_PASS=your-password
+```
+
+
+## Support inbox and Tawk.to widget
+
+The custom Nova AI support widget sends user messages into `support_conversations` and `support_messages`. Admins can reply from `/admin/support`. Replies are saved in Supabase, appear back inside the user's widget, and are also emailed when the user email is known.
+
+If you already ran the previous schema, run this migration once:
+
+```sql
+-- Supabase SQL Editor
+-- Run file: supabase/migrations/support-inbox-and-tawk-widget.sql
+```
+
+Tawk.to is optional. To enable it, create a Tawk.to property, copy the widget code from Administration → Chat Widget, then add the values from `https://embed.tawk.to/{PROPERTY_ID}/{WIDGET_ID}` into `.env.local`:
+
+```env
+NEXT_PUBLIC_TAWK_TO_PROPERTY_ID=your-property-id
+NEXT_PUBLIC_TAWK_TO_WIDGET_ID=default
 ```
 
 ## 4. Cron job for matured investments

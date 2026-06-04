@@ -238,6 +238,30 @@ create table if not exists public.user_sessions (
   created_at timestamptz not null default now()
 );
 
+create table if not exists public.support_conversations (
+  id uuid primary key default gen_random_uuid(),
+  user_id uuid references public.profiles(id) on delete set null,
+  visitor_token text not null,
+  guest_name text,
+  guest_email text,
+  subject text not null default 'Nova AI support conversation',
+  status text not null default 'OPEN' check (status in ('OPEN', 'PENDING_ADMIN', 'PENDING_USER', 'CLOSED')),
+  priority text not null default 'NORMAL' check (priority in ('LOW', 'NORMAL', 'HIGH', 'URGENT')),
+  last_message_at timestamptz not null default now(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+
+create table if not exists public.support_messages (
+  id uuid primary key default gen_random_uuid(),
+  conversation_id uuid not null references public.support_conversations(id) on delete cascade,
+  sender_type text not null check (sender_type in ('USER', 'ADMIN', 'SYSTEM')),
+  sender_id uuid references auth.users(id) on delete set null,
+  message text not null,
+  read_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
 create table if not exists public.email_verification_tokens (
   id uuid primary key default gen_random_uuid(),
   user_id uuid not null references public.profiles(id) on delete cascade,
@@ -261,6 +285,11 @@ create index if not exists investments_user_status_idx on public.investments(use
 create index if not exists transactions_user_created_idx on public.transactions(user_id, created_at desc);
 create index if not exists notifications_user_created_idx on public.notifications(user_id, created_at desc);
 create index if not exists activity_logs_created_idx on public.activity_logs(created_at desc);
+create index if not exists support_conversations_user_idx on public.support_conversations(user_id);
+create index if not exists support_conversations_token_idx on public.support_conversations(visitor_token);
+create index if not exists support_conversations_last_message_idx on public.support_conversations(last_message_at desc);
+create index if not exists support_messages_conversation_idx on public.support_messages(conversation_id, created_at);
+
 
 -- -----------------------------
 -- Helper functions
@@ -339,6 +368,8 @@ drop trigger if exists investments_touch_updated_at on public.investments;
 create trigger investments_touch_updated_at before update on public.investments for each row execute function public.touch_updated_at();
 drop trigger if exists wallets_touch_updated_at on public.wallets;
 create trigger wallets_touch_updated_at before update on public.wallets for each row execute function public.touch_updated_at();
+drop trigger if exists support_conversations_touch_updated_at on public.support_conversations;
+create trigger support_conversations_touch_updated_at before update on public.support_conversations for each row execute function public.touch_updated_at();
 
 -- -----------------------------
 -- Seed data
@@ -402,6 +433,8 @@ alter table public.activity_logs enable row level security;
 alter table public.kyc_documents enable row level security;
 alter table public.promo_codes enable row level security;
 alter table public.user_sessions enable row level security;
+alter table public.support_conversations enable row level security;
+alter table public.support_messages enable row level security;
 alter table public.email_verification_tokens enable row level security;
 
 -- Public/readable reference data
@@ -427,6 +460,8 @@ create policy "Admins read activity logs" on public.activity_logs for select usi
 create policy "Admins manage KYC" on public.kyc_documents for all using (public.is_admin()) with check (public.is_admin());
 create policy "Admins manage promo codes" on public.promo_codes for all using (public.is_admin()) with check (public.is_admin());
 create policy "Admins manage sessions" on public.user_sessions for all using (public.is_admin()) with check (public.is_admin());
+create policy "Admins manage support conversations" on public.support_conversations for all using (public.is_admin()) with check (public.is_admin());
+create policy "Admins manage support messages" on public.support_messages for all using (public.is_admin()) with check (public.is_admin());
 create policy "Admins read email verification tokens" on public.email_verification_tokens for select using (public.is_admin());
 
 -- User scoped access
@@ -452,6 +487,11 @@ create policy "Users read own referrals" on public.referrals for select using (a
 create policy "Users create own KYC docs" on public.kyc_documents for insert with check (auth.uid() = user_id);
 create policy "Users read own KYC docs" on public.kyc_documents for select using (auth.uid() = user_id);
 create policy "Users read own sessions" on public.user_sessions for select using (auth.uid() = user_id);
+create policy "Users read own support conversations" on public.support_conversations for select using (auth.uid() = user_id);
+create policy "Users create own support conversations" on public.support_conversations for insert with check (auth.uid() = user_id or user_id is null);
+create policy "Users read own support messages" on public.support_messages for select using (exists (select 1 from public.support_conversations c where c.id = conversation_id and c.user_id = auth.uid()));
+create policy "Users create support messages" on public.support_messages for insert with check (sender_type = 'USER' and exists (select 1 from public.support_conversations c where c.id = conversation_id and (c.user_id = auth.uid() or c.user_id is null)));
+
 
 -- Storage policies
 create policy "Authenticated users upload payment proofs" on storage.objects for insert to authenticated with check (bucket_id = 'payment-proofs');
@@ -463,3 +503,5 @@ create policy "Users read own KYC documents" on storage.objects for select to au
 alter publication supabase_realtime add table public.notifications;
 alter publication supabase_realtime add table public.transactions;
 alter publication supabase_realtime add table public.investments;
+alter publication supabase_realtime add table public.support_conversations;
+alter publication supabase_realtime add table public.support_messages;
