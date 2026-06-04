@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { ArrowRight, BarChart3, Bitcoin, CandlestickChart, CheckCircle2, Coins, ShieldCheck, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -16,6 +17,15 @@ const floating = [
 export function HeroSection() {
   return (
     <section className="relative overflow-hidden pb-24 pt-16 md:pt-24">
+      {/* Background Image Added Here */}
+      <Image 
+        src="/background.png" /* Change this to your exact image filename (e.g., /background.png) */
+        alt="NovaVest Capital Background"
+        fill
+        priority
+        className="object-cover object-center -z-20 opacity-30" /* Adjust opacity as needed */
+      />
+      
       <div className="absolute inset-0 -z-10 fintech-grid opacity-70" />
       {floating.map((item, index) => (
         <motion.div
