@@ -48,7 +48,7 @@ export function InvestmentActionCard() {
       <p className="text-xl font-bold">Investment calculator</p>
       <p className="mt-2 text-sm text-slate-400">Select a plan and preview your capital, profit, and return.</p>
       <div className="mt-5 space-y-4">
-        <Select value={plan} onChange={(e) => setPlan(e.target.value)} disabled={loading}>
+       <Select value={plan} onValueChange={setPlan} disabled={loading}>
           {investmentPlans.map((item) => <option key={item.slug} value={item.slug}>{item.name}</option>)}
         </Select>
         <div className="grid grid-cols-3 gap-3">
