@@ -76,7 +76,7 @@ export function DepositForm({ wallets }: { wallets: any[] }) {
       <form onSubmit={onSubmit} className="mt-6 space-y-5">
         <div className="space-y-2">
           <Label>Crypto network</Label>
-          <Select value={network} onChange={(e) => setNetwork(e.target.value)} disabled={loading}>
+          <Select value={network} onValueChange={(value) => setNetwork(value)} disabled={loading}>
             {wallets.map((item) => <option key={item.id} value={item.network}>{item.asset} {item.network}</option>)}
           </Select>
         </div>
