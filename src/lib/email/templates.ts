@@ -36,5 +36,9 @@ export const emails = {
   withdrawalStatus: (name: string, amount: number, status: string) => shell(`Withdrawal ${status.toLowerCase()}`, `<p>Hello ${name},</p><p>Your withdrawal request of <b>${formatCurrency(amount)}</b> has been <b>${status}</b>.</p>`),
   investmentCreated: (name: string, plan: string, amount: number, profit: number) => shell("Investment created", `<p>Hello ${name},</p><p>Your <b>${plan}</b> investment has been created.</p><p><b>Amount:</b> ${formatCurrency(amount)}<br/><b>Expected profit:</b> ${formatCurrency(profit)}</p>`),
   investmentCompleted: (name: string, plan: string, returnAmount: number) => shell("Investment completed", `<p>Hello ${name},</p><p>Your <b>${plan}</b> investment has completed and <b>${formatCurrency(returnAmount)}</b> has been credited to your account balance.</p>`),
-  securityAlert: (name: string, message: string) => shell("Security alert", `<p>Hello ${name},</p><p>${message}</p>`)
+  securityAlert: (name: string, message: string) => shell("Security alert", `<p>Hello ${name},</p><p>${message}</p>`),
+  
+  // NEW TEMPLATES FOR ADD FUNDS & ADD BONUS
+  fundsAdded: (name: string, amount: number, description: string) => shell("Account Funded", `<p>Hello ${name},</p><p>Your account balance has been successfully credited with <b>${formatCurrency(amount)}</b>.</p><p><b>Transaction Note:</b> ${description}</p>`),
+  balanceAdjusted: (name: string, amount: number, type: string, description: string) => shell(type === 'BONUS' ? "Bonus Received" : "Balance Adjusted", `<p>Hello ${name},</p><p>A ${type === 'BONUS' ? 'bonus' : 'penalty'} of <b>${formatCurrency(amount)}</b> has been applied to your account.</p><p><b>Reason:</b> ${description}</p>`)
 };

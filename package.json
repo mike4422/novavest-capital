@@ -23,6 +23,7 @@
     "lucide-react": "latest",
     "next": "latest",
     "nodemailer": "latest",
+    "radix-ui": "^1.4.3",
     "react": "latest",
     "react-apexcharts": "latest",
     "react-dom": "latest",
