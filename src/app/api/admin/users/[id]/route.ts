@@ -2,12 +2,14 @@ import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireAdmin } from "@/lib/auth";
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await requireAdmin();
     const admin = createAdminClient();
     const body = await request.json();
-    const { id } = await params; // Await params for Next.js App Router compatibility
+    
+    // Await params to comply with Next.js 15+ routing rules
+    const { id } = await params; 
 
     // 1. Update the public profiles table
     const { error: profileError } = await admin
@@ -40,13 +42,12 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-
-// ... keep your existing PATCH function at the top ...
-
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await requireAdmin();
     const admin = createAdminClient();
+    
+    // Await params to comply with Next.js 15+ routing rules
     const { id } = await params; 
 
     // Deleting from auth.users automatically cascades and deletes their profile, 
