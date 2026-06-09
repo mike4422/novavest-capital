@@ -2,9 +2,10 @@ import { AdminHeader } from "@/components/admin/admin-header";
 import { BalanceEditor } from "@/components/admin/balance-editor";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { requireAdmin } from "@/lib/auth";
 import { formatCurrency } from "@/lib/utils";
+import { EditUserModal } from "@/components/admin/edit-user-modal";
+import { DeleteUserButton } from "@/components/admin/delete-user-button";
 
 export default async function AdminUsersPage() {
   const { supabase } = await requireAdmin();
@@ -76,13 +77,12 @@ export default async function AdminUsersPage() {
                       {/* Right Column: Actions */}
                       <td className="p-4 align-top text-right space-y-2">
                         <div className="flex flex-col items-end gap-2">
-                          {/* Note: In a real environment, wrap these in your dialog components */}
-                          <Button size="sm" variant="outline" className="w-24 h-8 text-xs bg-emerald-500/10 text-emerald-400 border-emerald-500/20 hover:bg-emerald-500/20">
-                            EDIT
-                          </Button>
+                          <EditUserModal user={user} />
                           <div className="w-24">
                             <BalanceEditor userId={user.id} />
                           </div>
+                          {/* THE NEW REMOVE BUTTON */}
+                          <DeleteUserButton userId={user.id} userName={user.full_name} />
                         </div>
                       </td>
                     </tr>
